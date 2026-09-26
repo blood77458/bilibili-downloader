@@ -16,12 +16,17 @@
   let info = null;
   let downloading = false;
 
-  // 悬浮窗开关：任意页面都能改，默认开启
+  // 悬浮窗开关：写入 storage，并立刻通知所有 B 站标签页（不依赖页面是否已刷新）
   chrome.storage.local.get({ showFloatBtn: true }, function (data) {
     floatToggle.checked = data.showFloatBtn !== false;
   });
   floatToggle.addEventListener('change', function () {
-    chrome.storage.local.set({ showFloatBtn: floatToggle.checked });
+    const show = !!floatToggle.checked;
+    chrome.storage.local.set({ showFloatBtn: show }, function () {
+      chrome.runtime.sendMessage({ type: 'SET_FLOAT_VISIBLE', show: show }, function () {
+        void chrome.runtime.lastError;
+      });
+    });
   });
 
   function setDownloading(on) {

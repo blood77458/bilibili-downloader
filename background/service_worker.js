@@ -314,8 +314,29 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   (async function () {
     try {
       switch (msg.type) {
-        case 'PING':
+        case 'SET_FLOAT_VISIBLE': {
+          const show = msg.show !== false;
+          try {
+            await chrome.storage.local.set({ showFloatBtn: show });
+          } catch (e) {
+            /* 忽略 */
+          }
+          try {
+            const tabs = await chrome.tabs.query({
+              url: ['*://*.bilibili.com/*', '*://www.bilibili.com/*'],
+            });
+            await Promise.all(
+              tabs.map(function (tab) {
+                return chrome.tabs
+                  .sendMessage(tab.id, { type: 'SET_FLOAT_VISIBLE', show: show })
+                  .catch(function () {});
+              })
+            );
+          } catch (e) {
+            /* 忽略 */
+          }
           return { ok: true };
+        }
 
         case 'GET_INFO': {
           const info = await resolveMedia(msg);

@@ -54,7 +54,7 @@
   const btn = document.createElement('div');
   btn.id = 'bili-dl-btn';
   btn.textContent = '⏬ 下载';
-  btn.style.display = 'none'; // 等 storage 读完再决定是否显示，避免闪一下
+  btn.classList.add('bili-dl-hidden'); // 等 storage 读完再决定是否显示
   document.documentElement.appendChild(btn);
 
   /* ---------- 面板 ---------- */
@@ -82,10 +82,13 @@
   let floatVisible = true;
 
   function applyFloatVisibility(show) {
-    floatVisible = !!show;
-    btn.style.display = floatVisible ? '' : 'none';
+    floatVisible = show !== false;
+    btn.classList.toggle('bili-dl-hidden', !floatVisible);
     if (!floatVisible) {
       panel.style.display = 'none';
+      panel.classList.add('bili-dl-hidden');
+    } else {
+      panel.classList.remove('bili-dl-hidden');
     }
   }
 
@@ -93,7 +96,8 @@
     applyFloatVisibility(data.showFloatBtn !== false);
   });
   chrome.storage.onChanged.addListener(function (changes, area) {
-    if (area === 'local' && changes.showFloatBtn) {
+    if (area === 'local' && Object.prototype.hasOwnProperty.call(changes, 'showFloatBtn')) {
+      // newValue 为 false 时也必须处理（不能用 if (changes.showFloatBtn.newValue)）
       applyFloatVisibility(changes.showFloatBtn.newValue !== false);
     }
   });
@@ -137,6 +141,7 @@
   }
 
   btn.addEventListener('click', async function () {
+    if (!floatVisible) return;
     syncPageIfChanged();
     const willShow = panel.style.display === 'none';
     panel.style.display = willShow ? 'block' : 'none';
@@ -208,6 +213,10 @@
   });
 
   chrome.runtime.onMessage.addListener(function (msg) {
+    if (msg.type === 'SET_FLOAT_VISIBLE') {
+      applyFloatVisibility(msg.show !== false);
+      return;
+    }
     if (msg.type === 'PROGRESS') {
       let text = msg.text || '';
       if (msg.pct != null && msg.stage !== 'done') text += ' (' + msg.pct + '%)';

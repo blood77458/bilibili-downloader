@@ -41,11 +41,20 @@ bilibili-downloader/
 
 ## 安装
 
-1. **先下载依赖**：双击 `download-vendor.bat`（或右键 `download-vendor.ps1` → 使用 PowerShell 运行），把 ffmpeg 内核的 2 个文件下载到 `vendor/` 目录（约 30MB，只需一次）
-2. 打开 Chrome，地址栏输入 `chrome://extensions/`
-3. 右上角打开「开发者模式」
-4. 点击「加载已解压的扩展程序」，选择本目录 `bilibili-downloader/`
-5. 打开任意 B 站视频页（`bilibili.com/video/BV...`），页面右下角会出现「⏬ 下载」按钮；也可以点击工具栏扩展图标使用弹窗
+1. 打开 Chrome（需 **116+**），地址栏输入 `chrome://extensions/`
+2. 右上角打开「开发者模式」
+3. 点击「加载已解压的扩展程序」，选择本目录 `bilibili-downloader/`（若缺 `vendor/ffmpeg-core.*`，先运行 `download-vendor.bat`）
+4. 打开任意 B 站视频页（`bilibili.com/video/BV...`）或番剧页，右下角会出现「⏬ 下载」按钮；也可以点击工具栏扩展图标使用弹窗
+
+## 兼容性说明
+
+| 环境 | 说明 |
+|------|------|
+| Chrome / Edge / 国产 Chromium 内核 116+ | 可用（依赖 Offscreen Document、DNR、WASM） |
+| Firefox / Safari | 不可用（非 Chromium MV3 扩展模型） |
+| 内存较小的机器 | 4K/长视频可能合并失败或卡死（音视频整段进内存） |
+| 企业策略禁用 `wasm-unsafe-eval` | ffmpeg 无法加载 |
+| DRM 付费内容 | 无法下载（接口返回加密流） |
 
 ## 使用
 
@@ -74,7 +83,7 @@ bilibili-downloader/
 | 现象 | 原因 / 处理 |
 |------|------------|
 | 清晰度列表里没有 4K/8K | 未登录，或该视频本身没有此清晰度；确认已在 `bilibili.com` 登录 |
-| 合并时报错找不到 createFFmpegCore | 没跑 `download-vendor.bat`，`vendor/` 目录缺文件 |
+| 合并时报错找不到 createFFmpegCore | `vendor/` 缺少 `ffmpeg-core.js` / `.wasm`，运行 `download-vendor.bat` 后重载扩展 |
 | 下载视频/音频失败 HTTP 403 | Referer 没生效。确认 `declarativeNetRequest` 规则已注册（重启扩展）；若仍失败，可改为在 content script 内 `fetch`（页面上下文会自动带 Referer） |
 | 接口错误 -412 | 触发风控，稍等重试或刷新视频页 |
 | 接口错误 -10403 / 大会员相关 | 接口认为未登录或无权限，检查 Cookie 是否包含 `SESSDATA` |

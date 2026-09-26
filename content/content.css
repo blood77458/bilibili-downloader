@@ -1,3 +1,7 @@
+#bili-dl-btn.bili-dl-hidden,
+#bili-dl-panel.bili-dl-hidden {
+  display: none !important;
+}
 #bili-dl-btn {
   position: fixed;
   right: 24px;
