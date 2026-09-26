@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "B站视频下载助手",
+  "version": "0.1.3",
+  "description": "下载B站视频（支持大会员高清4K/8K/杜比，音视频自动合并为MP4）",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "cookies",
+    "downloads",
+    "storage",
+    "offscreen",
+    "declarativeNetRequest",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.bilibili.com/video/*",
+        "*://www.bilibili.com/list/*",
+        "*://www.bilibili.com/bangumi/play/*"
+      ],
+      "js": ["content/content.js"],
+      "css": ["content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "B站视频下载助手"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

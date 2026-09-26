@@ -1,0 +1,16 @@
+# Dependencies / build
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.cursor/
+
+# Local release artifacts
+dist/
+*.zip
+_compare_store*.txt
+
+# Large wasm is downloaded by download-vendor.*; keep scripts, ignore binary if preferred.
+# For this project we DO commit vendor wasm so the extension loads out of the box.
+# Uncomment next line only if you want zip-only releases:
+# vendor/ffmpeg-core.wasm
